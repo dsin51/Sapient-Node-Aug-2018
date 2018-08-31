@@ -1,5 +1,16 @@
-let url = require('url');
+let url = require('url'),
+	querystring = require('querystring');
+
 module.exports = function(req, res, next){
 	req['urlObj'] = url.parse(req.url === '/' ? '/index.html' : req.url);
-	next();
+	req['queryData'] = querystring.parse(req.urlObj.query);
+
+	let rawData = '';
+	req.on('data', function(chunk){
+		rawData += chunk;
+	});
+	req.on('end', function(){
+		req['bodyData'] = querystring.parse(rawData);
+		next();
+	});	
 };
