@@ -5,6 +5,14 @@ let http = require('http'),
 	querystring = require('querystring'),
 	calculator = require('./calculator');
 
+
+/*
+dataParser.js
+serveStatic.js
+calculatorHandler.js
+notFoundHandler.js
+*/
+
 var staticExtns = ['.html', '.css', '.js', '.xml', '.json', '.png', '.jpg', '.ico'];
 
 function isStatic(resource){
@@ -32,13 +40,19 @@ let server = http.createServer(function(req, res){
 		res.write(result.toString());
 		res.end();
 	} else if (urlObj.pathname === '/calculator' && req.method === 'POST'){
-		let queryData = querystring.parse(urlObj.query);
-		let operator = queryData.op,
-			n1 = parseInt(queryData.n1),
-			n2 = parseInt(queryData.n2);
-		let result = calculator[operator](n1,n2);
-		res.write(result.toString());
-		res.end();
+		let rawData = '';
+		req.on('data', function(chunk){
+			rawData += chunk;
+		});
+		req.on('end', function(){
+			let queryData = querystring.parse(rawData);
+			let operator = queryData.op,
+				n1 = parseInt(queryData.n1),
+				n2 = parseInt(queryData.n2);
+			let result = calculator[operator](n1,n2);
+			res.write(result.toString());
+			res.end();	
+		});
 	}else {
 		res.statusCode = 404;
 		res.end();
