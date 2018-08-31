@@ -16,3 +16,4 @@ let server = http.createServer(function(req, res){
 });
 
 server.listen(8080);
+console.log('web server running on 8080');
