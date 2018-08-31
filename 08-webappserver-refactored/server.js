@@ -1,14 +1,20 @@
 let http = require('http'),
-	app = require('./app');
+	path = require('path'),
+	chalk = require('chalk');
 	
-let dataParser = require('./dataParser'),
+let app = require('./app'),
+	dataParser = require('./dataParser'),
 	serveStatic = require('./serveStatic'),
 	calculatorHandler = require('./calculatorHandler'),
 	notFoundHandler = require('./notFoundHandler');
 
-
 app.use(dataParser);
-app.use(serveStatic);
+app.use(function(req, res, next){
+	console.log(chalk.bold.red(req.method) + '\t' + chalk.blue(req.urlObj.pathname));
+	next();
+});
+
+app.use(serveStatic(path.join(__dirname, 'public')));
 app.use(calculatorHandler);
 app.use(notFoundHandler);
 
