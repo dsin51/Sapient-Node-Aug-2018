@@ -8,7 +8,6 @@ function isStatic(resource){
 	return staticExtns.indexOf(extn) >= 0;
 }
 
-
 module.exports = function(req, res){
 	if (isStatic(req.urlObj.pathname)){
 		let resource = path.join(__dirname, req.urlObj.pathname);
@@ -18,6 +17,14 @@ module.exports = function(req, res){
 			return;
 		}
 		let stream = fs.createReadStream(resource);
-		stream.pipe(res);
+		//stream.pipe(res);
+		stream.on('data', function(chunk){
+			console.log('serveStatic - data event triggered');
+			res.write(chunk);
+		});
+		stream.on('end', function(){
+			console.log('serveStatic - end event triggered');
+			res.end();
+		})
 	}
 }
