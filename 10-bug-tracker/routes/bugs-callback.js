@@ -5,23 +5,20 @@ var bugService = require('../services/bugService');
 
 
 router.get('/', function(req, res, next){
-	bugService
-		.getAll()
-		.then(function(bugs){
-			res.json(bugs);	
-		})
-		.catch(function (err){
+	bugService.getAll(function(err, bugs){
+		if (err){
 			res.status(404).end();
-		})
+			return;
+		}
+		res.json(bugs);
+	});
 });
 
 router.post('/', function(req, res, next){
 	let newBugData = req.body;
-	bugService
-		.addNew(newBugData)
-		.then(function(newBug){
-			res.status(201).json(newBug);	
-		});
+	bugService.addNew(newBugData, function(err, newBug){
+		res.status(201).json(newBug);	
+	})
 });
 
 router.put('/:id', function(req,res,next){
