@@ -4,21 +4,15 @@ var bugService = require('../services/bugService');
 
 
 
-router.get('/',async function(req, res, next){
-	/*bugService
+router.get('/', function(req, res, next){
+	bugService
 		.getAll()
 		.then(function(bugs){
 			res.json(bugs);	
 		})
 		.catch(function (err){
 			res.status(404).end();
-		})*/
-	try { 
-		let bugs = await bugService.getAll();
-		res.json(bugs);
-	} catch (err) {
-		res.status(404).end();
-	}
+		})
 });
 
 router.post('/', function(req, res, next){
