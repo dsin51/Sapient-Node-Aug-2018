@@ -1,58 +1,36 @@
-let path = require('path'),
-	bluebird = require('bluebird'),
-	fs = bluebird.promisifyAll(require('fs'));
+let mongoose = require('mongoose');
 
-let bugsList = [];
-let dataFile = path.join(__dirname, '../data/bugs1.json');
+const Schema = mongoose.Schema;
+const ObjectId = Schema.ObjectId;
 
-async function getAll(){
+const conn = mongoose.createConnection('mongodb://localhost:27017/learning');
+
+const BugModel = new Schema({
+	name : String,
+	isClosed : Boolean,
+});
+
+const Bug = conn.model('bugs', BugModel);
+
+
+function getAll(){
 	/*return new Promise(function(resolveFn, rejectFn){
-		fs.readFile(dataFile, {encoding : 'utf8'}, function(err, fileContents){
-			if (err){
-				rejectFn(err);
-				return;
-			}
-			bugsList = JSON.parse(fileContents);
-			resolveFn(bugsList);
-		});
+		Bug.find({}, function(err, bugs){
+			if (!err)
+				return resolveFn(bugs);
+			console.log(err)
+			rejectFn(err);
+		});	
 	});*/
 
-	/*return new Promise(function(resolveFn, rejectFn){
-		fs.readFileAsync(dataFile, { encoding : 'utf8'})
-			.then(function(rawData){
-				bugsList = JSON.parse(rawData);
-				resolveFn(bugsList);
-			});
-	});*/
-
-		/*return fs
-			.readFileAsync(dataFile, { encoding : 'utf8'})
-			.then(function(rawData){
-				bugsList = JSON.parse(rawData);
-				return bugsList
-			});*/
-	try {	
-		let rawData = await fs.readFileAsync(dataFile, { encoding : 'utf8'})
-		bugsList = JSON.parse(rawData);
-		return bugsList;
-	} catch (err){
-		throw err;
-	}
+	return Bug.find({});
 }
 
-
-function addNew(newBugData, callback){
-	let newBugId = bugsList.reduce((result, bug) => bug.id > result ? bug.id : result, 0) + 1;
-	let newBug = {...newBugData, id : newBugId};
-	bugsList.push(newBug);
-	return new Promise(function(resolveFn, rejectFn){
-		fs.writeFile(dataFile, JSON.stringify(bugsList), function(err, cb){
-			if (err){
-				return rejectFn(err);
-			}
-			resolveFn(newBug);
-		});
-	});
-	
+function addNew(newBugData){
+	let newBug = new Bug();
+	newBug.name = newBugData.name;
+	newBug.isClosed = newBugData.isClosed;
+	return newBug.save();
 }
-module.exports = { getAll, addNew };
+
+module.exports = { getAll, addNew }
